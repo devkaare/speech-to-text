@@ -57,7 +57,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("Successfully transcribed clip!\nFile: %s\nData: %s", inputPath, audioResp.Text)
+	fmt.Printf("Successfully transcribed clip!\nFile: %s\nData: %s\n", inputPath, audioResp.Text)
 
 	chatResp, err := client.Chat.Completions.New(
 		context.TODO(),
@@ -72,5 +72,5 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("Successfully summarized data!\nData: %s", chatResp.Choices[0].Message.Content)
+	fmt.Printf("Successfully summarized data!\nData: %s\n", chatResp.Choices[0].Message.Content)
 }
