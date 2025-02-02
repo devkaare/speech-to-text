@@ -57,13 +57,13 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("Successfully transcribed clip!\nFile: %s\nData: %s\n", inputPath, audioResp.Text)
+	fmt.Printf("[+] Successfully transcribed clip!\nFile: %s\nData: %s\n", inputPath, audioResp.Text)
 
 	chatResp, err := client.Chat.Completions.New(
 		context.TODO(),
 		openai.ChatCompletionNewParams{
 			Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
-				openai.UserMessage("Say this is a test"),
+				openai.UserMessage("Create a short summary of this audio clip transcription: " + audioResp.Text),
 			}),
 			Model: openai.F(openai.ChatModelGPT4o),
 		},
@@ -72,5 +72,5 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("Successfully summarized data!\nData: %s\n", chatResp.Choices[0].Message.Content)
+	fmt.Printf("[+] Successfully summarized data!\nData: %s\n", chatResp.Choices[0].Message.Content)
 }
