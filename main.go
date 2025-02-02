@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
 )
@@ -28,7 +29,8 @@ func main() {
 	audioResp, err := client.Audio.Translations.New(
 		context.TODO(),
 		openai.AudioTranslationNewParams{
-			File: openai.F[io.Reader](file),
+			File:  openai.F[io.Reader](file),
+			Model: openai.F(openai.AudioModelWhisper1),
 		},
 	)
 	if err != nil {
