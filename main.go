@@ -15,20 +15,43 @@ import (
 var (
 	inputPath = "example-clips/english-corporate-meeting.wav"
 	// inputPath  = "example-clips/norwegian-topic-explanation.wav"
-	outputPath  = "transcriptions/output.txt" + time.Now().GoString()
-	summaryPath = "transcriptions/summary.txt" + time.Now().GoString()
+	outputPath  = "transcriptions/output-" + time.Now().Format(time.RFC3339) + ".txt"
+	summaryPath = "transcriptions/summary-" + time.Now().Format(time.RFC3339) + ".txt"
 )
 
-func writeToFile(filePath, data string) error {
-	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
+func checkFileExists(filePath string) (bool, error) {
+	fileInfo, err := os.Stat(filePath)
 	if err != nil {
+		return false, err
+	}
+
+	if len(fileInfo.Name()) <= 0 {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func writeToFile(filePath, data string) error {
+	var file *os.File
+
+	fileExists, err := checkFileExists(filePath)
+	if !fileExists {
+		if file, err = os.Create(filePath); err != nil {
+			return err
+		}
+	}
+
+	if file, err = os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600); err != nil {
 		return err
 	}
+
 	defer file.Close()
 
 	if _, err := file.WriteString(data + "\n"); err != nil {
 		return err
 	}
+
 	return nil
 }
 
