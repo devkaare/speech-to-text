@@ -12,8 +12,9 @@ import (
 )
 
 const (
-	inputPath  = "example-clips/english-corporate-meeting.wav"
-	outputPath = "transcriptions/responses.txt"
+	inputPath = "example-clips/english-corporate-meeting.wav"
+	// inputPath  = "example-clips/norwegian-topic-explanation.wav"
+	outputPath = "transcriptions/output.txt"
 )
 
 func writeOutput(data string) error {
@@ -58,4 +59,18 @@ func main() {
 
 	fmt.Printf("Successfully transcribed clip!\nFile: %s\nData: %s", inputPath, audioResp.Text)
 
+	chatResp, err := client.Chat.Completions.New(
+		context.TODO(),
+		openai.ChatCompletionNewParams{
+			Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
+				openai.UserMessage("Say this is a test"),
+			}),
+			Model: openai.F(openai.ChatModelGPT4o),
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Successfully summarized data!\nData: %s", chatResp.Choices[0].Message.Content)
 }
