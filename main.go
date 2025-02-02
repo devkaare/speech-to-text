@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"time"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -71,6 +72,25 @@ func readFromFile(filePath string) (string, error) {
 	}
 
 	return string(rawData), nil
+}
+
+func recordAudio(filePath string) error {
+	return nil
+}
+
+func splitAudioFile(filePath string) ([]string, error) {
+	rawFileInfo, err := exec.Command("sox", "--i", filePath).Output()
+	if err != nil {
+		return []string{}, err
+	}
+
+	// sox example-clips/english-corporate-meeting.wav example-clips/copy-english-corporate-meeting.wav trim 0 5 : newfile : restart
+	// 25 MB MAX
+	if _, err = exec.Command("sox", filePath, filePath, "trim", "0", "5", ":", "newfile", ":", "restart").Output(); err != nil {
+		return []string{}, err
+	}
+
+	return []string{}, nil
 }
 
 func main() {
