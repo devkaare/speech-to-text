@@ -12,8 +12,17 @@ import (
 	"github.com/openai/openai-go/option"
 )
 
-type APIResp struct {
-	text string
+func writeResp(data string) error {
+	respFile, err := os.OpenFile("transcriptions/responses.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
+	if err != nil {
+		return err
+	}
+	defer respFile.Close()
+
+	if _, err := respFile.WriteString(data + "\n"); err != nil {
+		return err
+	}
+	return nil
 }
 
 func main() {
@@ -42,15 +51,12 @@ func main() {
 		panic(err)
 	}
 
-	respFile, err := os.OpenFile("transcriptions/responses.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
-	if err != nil {
-		panic(err)
-	}
-	defer respFile.Close()
-
-	if _, err := respFile.WriteString(audioResp.Text + "\n"); err != nil {
+	if err := writeResp(audioResp.Text); err != nil {
 		panic(err)
 	}
 
 	fmt.Println("[+] Received API response:", audioResp.Text)
+
+	// TODO: Create a summary with AI using all the responses stored
+
 }
