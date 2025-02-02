@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	// "encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -16,11 +17,12 @@ type APIResp struct {
 }
 
 func main() {
-	file, err := os.Open("example-clips/english-corporate-meeting.wav")
-	// file, err := os.Open("example-clips/norwegian-topic-explanation.wav")
+	inputFile, err := os.Open("example-clips/english-corporate-meeting.wav")
+	// inputFile, err := os.Open("example-clips/norwegian-topic-explanation.wav")
 	if err != nil {
 		panic(err)
 	}
+	defer inputFile.Close()
 
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	fmt.Println("[+] Loaded API key: ", apiKey)
@@ -32,11 +34,21 @@ func main() {
 	audioResp, err := client.Audio.Translations.New(
 		context.TODO(),
 		openai.AudioTranslationNewParams{
-			File:  openai.F[io.Reader](file),
+			File:  openai.F[io.Reader](inputFile),
 			Model: openai.F(openai.AudioModelWhisper1),
 		},
 	)
 	if err != nil {
+		panic(err)
+	}
+
+	respFile, err := os.OpenFile("transcriptions/responses.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
+	if err != nil {
+		panic(err)
+	}
+	defer respFile.Close()
+
+	if _, err := respFile.WriteString(audioResp.Text + "\n"); err != nil {
 		panic(err)
 	}
 
