@@ -74,7 +74,7 @@ func readFromFile(filePath string) (string, error) {
 	return string(rawData), nil
 }
 
-func recordAudio(filePath string) error {
+func recordAudioFile(filePath string) error {
 	return nil
 }
 
