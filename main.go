@@ -11,21 +11,24 @@ import (
 	"github.com/openai/openai-go/option"
 )
 
+type APIResp struct {
+	text string
+}
+
 func main() {
-	fmt.Println("[+] Opening audio file...")
-	file, err := os.Open("test.wav")
+	file, err := os.Open("example-clips/english-corporate-meeting.wav")
+	// file, err := os.Open("example-clips/norwegian-topic-explanation.wav")
 	if err != nil {
 		panic(err)
 	}
 
 	apiKey := os.Getenv("OPENAI_API_KEY")
-	fmt.Println("API KEY:", apiKey)
-	fmt.Println("[+] Making new client...")
+	fmt.Println("[+] Loaded API key: ", apiKey)
+
 	client := openai.NewClient(
 		option.WithAPIKey(apiKey),
 	)
 
-	fmt.Println("[+] Sending request...")
 	audioResp, err := client.Audio.Translations.New(
 		context.TODO(),
 		openai.AudioTranslationNewParams{
@@ -37,5 +40,5 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("Response:", audioResp)
+	fmt.Println("[+] Received API response:", audioResp.Text)
 }
