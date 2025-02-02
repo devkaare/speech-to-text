@@ -18,6 +18,7 @@ func main() {
 	}
 
 	apiKey := os.Getenv("OPENAI_API_KEY")
+	fmt.Println("API KEY:", apiKey)
 	fmt.Println("[+] Making new client...")
 	client := openai.NewClient(
 		option.WithAPIKey(apiKey),
@@ -34,5 +35,5 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(audioResp)
+	fmt.Println("Response:", audioResp)
 }
