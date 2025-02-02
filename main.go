@@ -13,10 +13,19 @@ import (
 )
 
 var (
-	inputPath = "example-clips/english-corporate-meeting.wav"
-	// inputPath  = "example-clips/norwegian-topic-explanation.wav"
-	outputPath  = "transcriptions/output-" + time.Now().Format(time.RFC3339) + ".txt"
-	summaryPath = "transcriptions/summary-" + time.Now().Format(time.RFC3339) + ".txt"
+	inputFileName = "english-corporate-meeting.wav"
+	// inputFileName  = "norwegian-topic-explanation.wav"
+	outputFileName  = "output.txt"
+	summaryFileName = "summary.txt"
+
+	outputID = time.Now().Format(time.RFC3339)
+
+	outputDir = "transcriptions/" + outputID + "/"
+	inputDir  = "example-clips/"
+
+	outputFilePath  = outputDir + outputFileName
+	summaryFilePath = outputDir + summaryFileName
+	inputFilePath   = inputDir + inputFileName
 )
 
 func checkFileExists(filePath string) (bool, error) {
@@ -65,7 +74,7 @@ func readFromFile(filePath string) (string, error) {
 }
 
 func main() {
-	inputFile, err := os.Open(inputPath)
+	inputFile, err := os.Open(inputFilePath)
 	if err != nil {
 		panic(err)
 	}
@@ -87,13 +96,17 @@ func main() {
 		panic(err)
 	}
 
-	if err := writeToFile(outputPath, audioResp.Text); err != nil {
+	if err := os.Mkdir(outputDir, 0777); err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("[+] Successfully transcribed clip!\nFile: %s\nData: %s\n", inputPath, audioResp.Text)
+	if err := writeToFile(outputFilePath, audioResp.Text); err != nil {
+		panic(err)
+	}
 
-	data, err := readFromFile(outputPath)
+	fmt.Printf("[+] Successfully transcribed clip!\nFile: %s\nData: %s\n", inputFilePath, audioResp.Text)
+
+	data, err := readFromFile(outputFilePath)
 	if err != nil {
 		panic(err)
 	}
@@ -111,7 +124,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := writeToFile(summaryPath, chatResp.Choices[0].Message.Content); err != nil {
+	if err := writeToFile(summaryFilePath, chatResp.Choices[0].Message.Content); err != nil {
 		panic(err)
 	}
 
