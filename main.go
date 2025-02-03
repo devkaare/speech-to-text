@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
+	"regexp"
 	"time"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -78,19 +80,52 @@ func recordAudioFile(filePath string) error {
 	return nil
 }
 
-func splitAudioFile(filePath string) ([]string, error) {
-	rawFileInfo, err := exec.Command("sox", "--i", filePath).Output()
-	if err != nil {
-		return []string{}, err
+func splitAudioFile(filePath string) error {
+	cmd := exec.Command("sox", "--i", filePath)
+
+	r, _ := cmd.StdoutPipe()
+
+	cmd.Stderr = cmd.Stdout
+
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+
+	scanner := bufio.NewScanner(r)
+
+	durationRegex := regexp.MustCompile(`Duration\s+:\s+(\d{2}:\d{2}:\d{2}\.\d{2})`)
+	bitRateRegex := regexp.MustCompile(`Bit Rate\s+:\s+([\d.]+[kKmMbB]*)`)
+
+	var (
+		duration string
+		bitRate  string
+	)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		fmt.Println(line)
+
+		if result := durationRegex.FindStringSubmatch(line); len(result) > 1 {
+			duration = result[1]
+			fmt.Println("[+] Extracted Time:", duration)
+		}
+
+		if result := bitRateRegex.FindStringSubmatch(line); len(result) > 1 {
+			bitRate = result[1]
+			fmt.Println("[+] Extracted Time:", bitRate)
+		}
+	}
+
+	if err := cmd.Wait(); err != nil {
+		return err
 	}
 
 	// sox example-clips/english-corporate-meeting.wav example-clips/copy-english-corporate-meeting.wav trim 0 5 : newfile : restart
-	// 25 MB MAX
-	if _, err = exec.Command("sox", filePath, filePath, "trim", "0", "5", ":", "newfile", ":", "restart").Output(); err != nil {
-		return []string{}, err
-	}
+	// if _, err = exec.Command("sox", filePath, filePath, "trim", "0", "5", ":", "newfile", ":", "restart").Output(); err != nil {
+	// 	return err
+	// }
 
-	return []string{}, nil
+	return nil
 }
 
 func main() {
